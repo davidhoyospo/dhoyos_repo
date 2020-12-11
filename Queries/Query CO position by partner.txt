@@ -1,0 +1,18 @@
+SELECT
+    IF(array_contains(tags, 'learning_branch_rc'), 1, 0) AS learning_branch_flag,
+    split(pgl.page_log_detail[13],",")[0] as partner,
+    split(pgl.page_log_detail[205],",")[7] as possition,
+    count(1) as clickouts
+FROM trivago_analytic.session_stats_master ssm
+LATERAL VIEW explode(ssm.page_log_entries) pltable as pgl
+WHERE 
+    ssm.ymd BETWEEN 20190326 AND 20190331
+    AND (array_contains(ssm.tags, 'prime_branch_rc') OR array_contains(ssm.tags, 'learning_branch_rc'))
+    AND pgl.page_id = 8001
+    AND split(pgl.page_log_detail[205],",")[5] in ("100")
+    AND split(pgl.page_log_detail[13],",")[0] in ("2636","406","452","395","830","634","2420","626")
+GROUP BY
+    IF(array_contains(tags, 'learning_branch_rc'), 1, 0),
+    split(pgl.page_log_detail[13],",")[0],
+    split(pgl.page_log_detail[205],",")[7]
+    
